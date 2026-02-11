@@ -1,6 +1,6 @@
 using System;
 
-namespace ConsoleApp1;
+namespace TelemetryAnalyzer;
 
 public class LapRow
 {
