@@ -1,63 +1,93 @@
-﻿// Step 5 Plan:
-// 1. Filter rows where Sector != "LAP"
-// 2. For Car 2, group by Sector (S1..S9)
-// 3. For each sector, compute min time
-// 4. Sort by sector number
-// 5. Print results
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
-using TelemetryAnalyzer;
-
-string[] file = File.ReadAllLines("Chevrolet Detroit Grand Prix_Practice 2.csv");
-
-List<LapRow> rows = new List<LapRow>(); //declare list of rows using LapRow class
-
-string[] col; //String array to hold csv rows
-double minTime; //double holding the minimum sector time for cars
-
-Dictionary<string, double> laps = new Dictionary<string, double>(); //dictionary holding a key, value pair of the cars and their sector times
-
-
-//loop through entire csv
-for(int i = 1; i < file.Length; i++)
+namespace TelemetryAnalyzer
 {
-    col = file[i].Split(','); //remove commas in each row of file
-
-    //Create instance of LapRow class to hold car#, Sector, Sector Time
-    LapRow row = new LapRow 
+    class Program
     {
-        CarNumber = col[0],
-        Sector = col[2],
-        Time = double.Parse(col[3])
-    };
-
-    if(!row.Sector.Equals("LAP") && row.CarNumber.Equals("2"))
-    {
-        if(!laps.ContainsKey(row.Sector))
+        static void Main(string[] args)
         {
-            laps.Add(row.Sector, row.Time);
+            string[] file = File.ReadAllLines("Chevrolet Detroit Grand Prix_Practice 2.csv");
+
+            List<LapRow> rows = LoadRows(file);
+
+            RunStep4(rows);
+            RunStep5(rows);
+            RunStep6(rows);
         }
-        else
+
+
+        static List<LapRow> LoadRows(string[] file)
         {
-            if(laps.TryGetValue(row.Sector, out minTime))
+            List<LapRow> rows = new List<LapRow>();
+
+            for (int i = 1; i < file.Length; i++)
             {
-                if(minTime > row.Time)
+                string[] col = file[i].Split(',');
+
+                LapRow row = new LapRow
                 {
-                    minTime = row.Time;
-                    laps[row.Sector] = minTime;
+                    CarNumber = col[0],
+                    Sector = col[2],
+                    Time = double.Parse(col[3])
+                };
+
+                rows.Add(row);
+            }
+
+            return rows;
+        }
+
+        static void RunStep4(List<LapRow> rows)
+        {
+            Dictionary<string, double> laps = new Dictionary<string, double>();
+            double minTime;
+
+            foreach(var r in rows)
+            {
+                if(r.Sector.Equals("LAP"))
+                {
+                    if(!laps.ContainsKey(r.CarNumber))
+                    {
+                        laps.Add(r.CarNumber, r.Time);
+                    }
+                    else
+                    {
+                        if(laps.TryGetValue(r.CarNumber, out minTime))
+                        {
+                            if(minTime > r.Time)
+                            {
+                                minTime = r.Time;
+                                laps[r.CarNumber] = minTime;
+                            }
+                        }
+                    }
                 }
+
+
+            }
+
+            List<KeyValuePair<string, double>> lapList = laps.ToList();
+
+            lapList.Sort((a, b) => a.Value.CompareTo(b.Value));
+
+            foreach (var l in lapList)
+            {
+                Console.WriteLine("Car " + l.Key + " | Fastest Lap: " + l.Value + "s");
             }
         }
+
+        static void RunStep5(List<LapRow> rows)
+        {
+           Console.WriteLine("Step 5 Running..");
+        }
+
+        static void RunStep6(List<LapRow> rows)
+        {
+           Console.WriteLine("Step 6 Running..");
+        }
+
     }
-
-
 }
-
-List<KeyValuePair<string, double>> lapList = laps.ToList(); //convert dictionary to list
-
-lapList.Sort((a, b) => a.Key.CompareTo(b.Key)); //sort list in ascending order by sector times
-
-foreach (var l in lapList)
-{
-    Console.WriteLine("Car 2 | " + l.Key +  " | Fastest Lap: " + l.Value + "s");
-}
-
