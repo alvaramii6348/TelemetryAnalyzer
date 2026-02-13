@@ -45,6 +45,7 @@ namespace TelemetryAnalyzer
             Dictionary<string, double> laps = new Dictionary<string, double>();
             double minTime;
 
+            Console.WriteLine("\nStep 4:");
             foreach(var r in rows)
             {
                 if(r.Sector.Equals("LAP"))
@@ -81,12 +82,45 @@ namespace TelemetryAnalyzer
 
         static void RunStep5(List<LapRow> rows)
         {
-           Console.WriteLine("Step 5 Running..");
+            double minTime; 
+            Dictionary<string, double> laps = new Dictionary<string, double>();
+
+            Console.WriteLine("\nStep 5:");
+            foreach(var r in rows)
+            {
+                if(!r.Sector.Equals("LAP") && r.CarNumber.Equals("2"))
+                {
+                    if(!laps.ContainsKey(r.Sector))
+                    {
+                        laps.Add(r.Sector, r.Time);
+                    }
+                    else
+                    {
+                        if(laps.TryGetValue(r.Sector, out minTime))
+                        {
+                            if(minTime > r.Time)
+                            {
+                                minTime = r.Time;
+                                laps[r.Sector] = minTime;
+                            }
+                        }
+                    }
+                }
+            }
+
+            List<KeyValuePair<string, double>> lapList = laps.ToList(); //convert dictionary to list
+
+            lapList.Sort((a, b) => a.Key.CompareTo(b.Key)); //sort list in ascending order by sector times
+
+            foreach (var l in lapList)
+            {
+                Console.WriteLine("Car 2 | " + l.Key +  " | Fastest Lap: " + l.Value + "s");
+            }
         }
 
         static void RunStep6(List<LapRow> rows)
         {
-           Console.WriteLine("Step 6 Running..");
+            Console.WriteLine("Step 6 Running..");
         }
 
     }
